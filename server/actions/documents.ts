@@ -7,6 +7,7 @@ import { type ActionResult, ok, fail } from "@/lib/action-result"
 import { documentSchema } from "@/lib/validation/document-schema"
 import { fileTypeFromBuffer } from "file-type"
 import { randomUUID } from "crypto"
+import { ingestDocument } from "@/server/services/ingest"
 
 export async function listDocumentsAction(): Promise<ActionResult<{ id: string; file_name: string; mime_type: string; file_size: number; created_at: string; client_id: string | null; deal_id: string | null }[]>> {
   const supabase = await createClient()
@@ -144,6 +145,12 @@ export async function uploadDocumentAction(formData: FormData): Promise<ActionRe
   if (error) {
     await supabase.storage.from("crm-documents").remove([storagePath])
     return fail(error.message)
+  }
+
+  // Trigger ingest — apel direct, sincron, MVP simplu (nu webhook)
+  const ingestResult = await ingestDocument(data.id)
+  if (!ingestResult.ok) {
+    console.error(`Ingest eșuat pentru ${data.id}: ${ingestResult.error}`)
   }
 
   revalidatePath("/dashboard/documents")

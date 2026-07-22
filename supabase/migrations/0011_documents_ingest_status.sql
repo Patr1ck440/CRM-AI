@@ -17,7 +17,6 @@ LANGUAGE plpgsql
 SET statement_timeout = '5s'
 AS $$
 BEGIN
-  -- XOR invariant
   IF (filter_deal_id IS NULL) = (filter_client_id IS NULL) THEN
     RAISE EXCEPTION 'Exactly one of filter_client_id or filter_deal_id must be provided';
   END IF;

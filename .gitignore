@@ -13,3 +13,11 @@ __v0_jsx-dev-runtime.ts
 node_modules
 .next/
 .DS_Store
+# Build artifacts
+*.tsbuildinfo
+
+# Claude Code local config
+.claude/
+
+# Supabase CLI temp files
+supabase/.temp/

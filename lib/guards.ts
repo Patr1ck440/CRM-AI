@@ -29,9 +29,7 @@ export async function getTenantContext(): Promise<TenantContext> {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  
-  console.log("DEBUG user:", user?.id, user?.email)
-  
+
   if (!user) redirect("/login")
 
   const { data: profile, error } = await supabase
@@ -40,9 +38,7 @@ export async function getTenantContext(): Promise<TenantContext> {
     .eq("id", user.id)
     .maybeSingle()
 
-  console.log("DEBUG profile:", profile)
-  console.log("DEBUG error:", error)
-
+  if (error) throw new Error(`Nu am putut citi profilul: ${error.message}`)
   if (!profile) redirect("/onboarding")
   if (!profile.is_active) {
     await supabase.auth.signOut()

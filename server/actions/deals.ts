@@ -45,16 +45,19 @@ export async function updateDealAction(id: string, input: unknown): Promise<Acti
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Date invalide")
 
   const supabase = await createClient()
-  const { error } = await supabase
-    .from("deals")
-    .update({
-      title: parsed.data.title,
-      client_id: parsed.data.client_id,
-      value_ron: parsed.data.value_ron,
-      expected_close_date: parsed.data.expected_close_date || null,
-      team_id: parsed.data.team_id || null,
-    })
-    .eq("id", id)
+
+  const payload: Record<string, unknown> = {
+    title: parsed.data.title,
+    client_id: parsed.data.client_id,
+    value_ron: parsed.data.value_ron,
+    expected_close_date: parsed.data.expected_close_date || null,
+  }
+  // Vezi updateClientAction: formularul nu trimite team_id, deci nu-l resetam.
+  if (parsed.data.team_id !== undefined) {
+    payload.team_id = parsed.data.team_id || null
+  }
+
+  const { error } = await supabase.from("deals").update(payload).eq("id", id)
 
   if (error) return fail(error.message)
   revalidatePath("/dashboard/deals")

@@ -9,11 +9,22 @@ import { fileTypeFromBuffer } from "file-type"
 import { randomUUID } from "crypto"
 import { ingestDocument } from "@/server/services/ingest"
 
-export async function listDocumentsAction(): Promise<ActionResult<{ id: string; file_name: string; mime_type: string; file_size: number; created_at: string; client_id: string | null; deal_id: string | null }[]>> {
+export type DocumentListItem = {
+  id: string
+  file_name: string
+  mime_type: string
+  file_size: number
+  created_at: string
+  client_id: string | null
+  deal_id: string | null
+  ingest_status: "pending" | "processing" | "done" | "failed"
+}
+
+export async function listDocumentsAction(): Promise<ActionResult<DocumentListItem[]>> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from("documents")
-    .select("id, file_name, mime_type, file_size, created_at, client_id, deal_id")
+    .select("id, file_name, mime_type, file_size, created_at, client_id, deal_id, ingest_status")
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
 

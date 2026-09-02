@@ -14,7 +14,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
 import { changeStageAction } from "@/server/actions/deals"
-import { type Deal, type DealStage, DEAL_STAGES } from "@/lib/types"
+import { type Deal, type DealStage, DEAL_STAGES, STAGE_LABEL } from "@/lib/types"
+import { canTransition } from "@/lib/validation/schemas"
 import { formatRON } from "@/lib/money"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -155,6 +156,13 @@ export function KanbanBoard({ initialDeals }: { initialDeals: BoardDeal[] }) {
     if (!overId) return
     const deal = deals.find((d) => d.id === dealId)
     if (!deal || deal.stage === overId) return
+
+    // Oglindim regulile trigger-ului din DB, ca sa nu facem un update optimist
+    // care oricum ar fi respins de server.
+    if (!canTransition(deal.stage, overId)) {
+      toast.error(`Nu se poate muta din „${STAGE_LABEL[deal.stage]}” în „${STAGE_LABEL[overId]}”`)
+      return
+    }
 
     if (overId === "lost") {
       setLostTarget(dealId)

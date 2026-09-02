@@ -4,7 +4,12 @@ import { type NextRequest, NextResponse } from "next/server"
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl
   const code = searchParams.get("code")
-  const next = searchParams.get("next") ?? "/dashboard"
+
+  // Acceptam doar cai relative la propria origine: un singur "/" la inceput,
+  // altfel "//host" ar fi interpretat de browser ca URL absolut catre alt domeniu.
+  const rawNext = searchParams.get("next")
+  const next =
+    rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/dashboard"
 
   if (code) {
     const supabase = await createClient()

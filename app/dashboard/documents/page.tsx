@@ -5,6 +5,22 @@ import { DocumentUploadForm } from "@/components/dashboard/document-upload-form"
 import { DocumentRowActions } from "@/components/dashboard/document-row-actions"
 import { DocumentActions } from "@/components/dashboard/document-actions"
 
+const INGEST_STATUS: Record<string, { label: string; className: string }> = {
+  pending: { label: "În așteptare", className: "bg-muted text-muted-foreground" },
+  processing: { label: "Se procesează", className: "bg-blue-500/10 text-blue-600" },
+  done: { label: "Indexat", className: "bg-green-500/10 text-green-600" },
+  failed: { label: "Eșuat", className: "bg-red-500/10 text-red-600" },
+}
+
+function IngestStatusBadge({ status }: { status: string }) {
+  const meta = INGEST_STATUS[status] ?? INGEST_STATUS.pending
+  return (
+    <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${meta.className}`}>
+      {meta.label}
+    </span>
+  )
+}
+
 export default async function DocumentsPage() {
   const result = await listDocumentsAction()
   const ctx = await getTenantContext()
@@ -45,6 +61,7 @@ const { data: deals } = await supabase
                 <th className="p-3 text-left font-medium">Tip</th>
                 <th className="p-3 text-left font-medium">Mărime</th>
                 <th className="p-3 text-left font-medium">Data</th>
+                <th className="p-3 text-left font-medium">Indexare AI</th>
                 <th className="p-3 text-left font-medium">Acțiuni</th>
               </tr>
             </thead>
@@ -58,6 +75,9 @@ const { data: deals } = await supabase
                   </td>
                   <td className="p-3 text-muted-foreground">
                     {new Date(doc.created_at).toLocaleDateString("ro-RO")}
+                  </td>
+                  <td className="p-3">
+                    <IngestStatusBadge status={doc.ingest_status} />
                   </td>
                   <td className="p-3">
                     <div className="flex items-center gap-3">

@@ -35,16 +35,20 @@ export async function updateClientAction(id: string, input: unknown): Promise<Ac
   if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Date invalide")
 
   const supabase = await createClient()
-  const { error } = await supabase
-    .from("clients")
-    .update({
-      name: parsed.data.name,
-      company: parsed.data.company || null,
-      industry: parsed.data.industry || null,
-      notes: parsed.data.notes || null,
-      team_id: parsed.data.team_id || null,
-    })
-    .eq("id", id)
+
+  const payload: Record<string, unknown> = {
+    name: parsed.data.name,
+    company: parsed.data.company || null,
+    industry: parsed.data.industry || null,
+    notes: parsed.data.notes || null,
+  }
+  // team_id nu apare in formularul de editare. Daca nu a fost trimis, il lasam
+  // neatins — altfel am scoate clientul din echipa la fiecare salvare.
+  if (parsed.data.team_id !== undefined) {
+    payload.team_id = parsed.data.team_id || null
+  }
+
+  const { error } = await supabase.from("clients").update(payload).eq("id", id)
 
   if (error) return fail(error.message)
   revalidatePath("/dashboard/clients")

@@ -50,7 +50,9 @@ function AcceptInviteInner() {
       options: {
         emailRedirectTo:
           process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ??
-          `${window.location.origin}/auth/callback?next=/accept-invite?token=${encodeURIComponent(token)}`,
+          `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+            `/accept-invite?token=${token}`,
+          )}`,
         data: { full_name: fullName },
       },
     })

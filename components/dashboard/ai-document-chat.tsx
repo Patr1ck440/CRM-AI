@@ -17,7 +17,7 @@ export function AiDocumentChat({ clientId, dealId }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const hasContext = Boolean(clientId) !== Boolean(dealId) === false ? Boolean(clientId || dealId) : true
+  const hasContext = Boolean(clientId || dealId)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -40,10 +40,10 @@ export function AiDocumentChat({ clientId, dealId }: Props) {
         }),
       })
 
-      const data = await res.json()
+      const data = await res.json().catch(() => null)
 
-      if (!data.ok) {
-        setError(data.error ?? "Eroare necunoscută")
+      if (!res.ok || !data?.ok) {
+        setError(data?.error ?? `Eroare server (${res.status})`)
         return
       }
 

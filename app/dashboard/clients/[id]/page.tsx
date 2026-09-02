@@ -66,6 +66,7 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
           <TabsTrigger value="activity">Activitate</TabsTrigger>
           <TabsTrigger value="contacts">Contacte ({contacts.length})</TabsTrigger>
           <TabsTrigger value="deals">Oportunități ({deals.length})</TabsTrigger>
+          <TabsTrigger value="ai">Documente AI</TabsTrigger>
         </TabsList>
 
         <TabsContent value="activity" className="space-y-4">
@@ -142,6 +143,14 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             </Link>
           ))}
           {deals.length === 0 && <p className="text-sm text-muted-foreground">Nicio oportunitate.</p>}
+        </TabsContent>
+
+        <TabsContent value="ai">
+          <Card>
+            <CardContent className="h-[600px] p-4">
+              <AiDocumentChat clientId={id} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
